@@ -7,16 +7,17 @@ import (
 	"runtime"
 )
 
-func Get(dir string) (string, error) {
+func Get(elem ...string) (string, error) {
 	usr, err := user.Current()
 	if err != nil {
 		return "", err
 	}
 	base := ""
+	head := elem[0]
 	switch runtime.GOOS {
 	case "linux", "freebsd", "netbsd", "openbsd", "dragonfly", "solaris":
 		base = usr.HomeDir
-		dir = "." + dir
+		head = "." + head
 	case "darwin":
 		base = filepath.Join(usr.HomeDir, "Library/Caches")
 	case "windows":
@@ -24,5 +25,6 @@ func Get(dir string) (string, error) {
 	case "android", "nacl", "plan9":
 		panic("cachedir.Get() not implemented for " + runtime.GOOS)
 	}
-	return filepath.Join(base, dir), nil
+	chain := append([]string{base, head}, elem[1:]...)
+	return filepath.Join(chain...), nil
 }
