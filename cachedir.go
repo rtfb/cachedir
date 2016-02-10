@@ -1,6 +1,7 @@
 package cachedir
 
 import (
+	"errors"
 	"os"
 	"os/user"
 	"path/filepath"
@@ -23,7 +24,7 @@ func Get(elem ...string) (string, error) {
 	case "windows":
 		base = os.Getenv("LOCALAPPDATA")
 	case "android", "nacl", "plan9":
-		panic("cachedir.Get() not implemented for " + runtime.GOOS)
+		return "", errors.New("cachedir.Get() not implemented for " + runtime.GOOS)
 	}
 	chain := append([]string{base, head}, elem[1:]...)
 	return filepath.Join(chain...), nil
