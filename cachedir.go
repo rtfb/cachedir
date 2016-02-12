@@ -28,17 +28,21 @@ import (
 // is responsible for calling os.MkdirAll if necessary.
 func Get(elem ...string) (string, error) {
 	usr, err := user.Current()
-	if err != nil {
-		return "", err
-	}
 	base := ""
+	if err != nil {
+		base = os.Getenv("HOME")
+		if base == "" {
+			return "", err
+		}
+	} else {
+		base = usr.HomeDir
+	}
 	head := elem[0]
 	switch runtime.GOOS {
 	case "linux", "freebsd", "netbsd", "openbsd", "dragonfly", "solaris":
-		base = usr.HomeDir
 		head = "." + head
 	case "darwin":
-		base = filepath.Join(usr.HomeDir, "Library/Caches")
+		base = filepath.Join(base, "Library/Caches")
 	case "windows":
 		base = os.Getenv("LOCALAPPDATA")
 	case "android", "nacl", "plan9":
